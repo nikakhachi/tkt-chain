@@ -1,10 +1,12 @@
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { EventPreview } from "./components/EventPreview";
+import { useNavigate } from "react-router-dom";
 
 function App() {
   const { address } = useAccount();
   const { openConnectModal } = useConnectModal();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -25,7 +27,10 @@ function App() {
             </button>
           ) : (
             <>
-              <button className="mt-6 hover:bg-indigo-600 text- py-2 px-4 border border-indigo-600 rounded transition-colors text-2xl">
+              <button
+                onClick={() => navigate("/create-event")}
+                className="mt-6 hover:bg-indigo-600 text- py-2 px-4 border border-indigo-600 rounded transition-colors text-2xl"
+              >
                 CREATE EVENT
               </button>
             </>

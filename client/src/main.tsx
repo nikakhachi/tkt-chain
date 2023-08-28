@@ -11,6 +11,8 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { Profile } from "./pages/Profile.tsx";
 import { Nav } from "./components/Nav.tsx";
+import { CreateEventPage } from "./pages/CreateEventPage.tsx";
+import { EventPage } from "./pages/EventPage.tsx";
 
 const { chains, publicClient } = configureChains(
   [import.meta.env.DEV ? hardhat : goerli],
@@ -42,6 +44,14 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <Profile />,
+      },
+      {
+        path: "create-event",
+        element: <CreateEventPage />,
+      },
+      {
+        path: "event/:id",
+        element: <EventPage />,
       },
     ],
   },
