@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { darkTheme, getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
@@ -8,6 +9,8 @@ import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { goerli, hardhat } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+import { Profile } from "./pages/Profile.tsx";
+import { Nav } from "./components/Nav.tsx";
 
 const { chains, publicClient } = configureChains(
   [import.meta.env.DEV ? hardhat : goerli],
@@ -26,11 +29,29 @@ const wagmiConfig = createConfig({
   publicClient,
 });
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Nav />,
+    // errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/",
+        element: <App />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
+      },
+    ],
+  },
+]);
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains} theme={darkTheme()}>
-        <App />
+        <RouterProvider router={router} />
       </RainbowKitProvider>
     </WagmiConfig>
   </React.StrictMode>
