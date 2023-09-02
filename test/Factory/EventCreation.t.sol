@@ -12,6 +12,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         factory.createEvent{value: amount}();
 
         assertEq(address(factory).balance, amount);
+        assertEq(factory.balanceOf(address(this)), factory.K());
     }
 
     function testCreateEventWithInvalidFee(uint256 amount) public {
@@ -38,6 +39,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         factory.createEvent(LINK);
 
         assertEq(token.balanceOf(address(factory)), tokenAmount);
+        assertEq(factory.balanceOf(address(this)), factory.K());
     }
 
     function testCreateEventWithTokenWithInvalidFee(uint amount) public {
@@ -57,5 +59,42 @@ contract EventCreationTest is TKTChainFactoryTest {
 
         vm.expectRevert(bytes("SafeERC20: low-level call failed"));
         factory.createEvent(LINK);
+    }
+
+    function testMintingDuringEventCreationWithEther(uint8 amount) public {
+        vm.assume(amount < 30); /// @dev Just to make tests fast
+        for (uint i = 1; i < amount; i++) {
+            factory.createEvent{value: INITIAL_FEE}();
+            assertEq(
+                factory.balanceOf(address(this)),
+                factory.K() / factory.totalEvents()
+            );
+            deal(address(factory), address(this), 0);
+        }
+    }
+
+    function testMintingDuringEventCreationWithToken(uint8 amount) public {
+        vm.assume(amount < 30); /// @dev Just to make tests fast
+
+        (, int tokenPriceInEth, , , ) = FeedRegistryInterface(
+            CHAINLINK_FEED_REGISTRY
+        ).latestRoundData(LINK, CHAINLINK_ETH_DENOMINATION_);
+
+        ERC20 token = ERC20(LINK);
+
+        uint256 tokenAmount = (INITIAL_FEE * (10 ** token.decimals())) /
+            uint256(tokenPriceInEth);
+
+        deal(LINK, address(this), tokenAmount * amount);
+        token.approve(address(factory), tokenAmount * amount);
+
+        for (uint i = 1; i < amount; i++) {
+            factory.createEvent(LINK);
+            assertEq(
+                factory.balanceOf(address(this)),
+                factory.K() / factory.totalEvents()
+            );
+            deal(address(factory), address(this), 0);
+        }
     }
 }

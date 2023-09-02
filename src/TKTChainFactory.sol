@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin/token/ERC20/ERC20.sol";
 import "chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol";
@@ -16,6 +17,7 @@ import "forge-std/console.sol";
 contract TKTChainFactory is
     Initializable,
     Ownable2StepUpgradeable,
+    ERC20Upgradeable,
     UUPSUpgradeable
 {
     using SafeERC20 for ERC20;
@@ -37,6 +39,10 @@ contract TKTChainFactory is
     address public constant CHAINLINK_ETH_DENOMINATION_ =
         0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE; /// @dev Used for price feed for ETH denomination
 
+    /// @dev Constant used to calculate minted tokens for event creators. totalEvents * mintedTokens = K
+    uint256 public constant K = 1000 ether;
+    uint256 public totalEvents;
+
     /// @dev This is the recommendation from the OZ, uncomment it when deploying.
     /// @dev During the tests, it's better to disable it, because it makes the tests fail
     // /// @custom:oz-upgrades-unsafe-allow constructor
@@ -51,6 +57,7 @@ contract TKTChainFactory is
         address _chainlinkFeedRegistry
     ) public initializer {
         __Ownable_init();
+        __ERC20_init("TKT Chain", "TKT");
         __UUPSUpgradeable_init();
         eventCreationFeeInEth = _eventCreationFeeInEth;
         chainlinkFeedRegistry = FeedRegistryInterface(_chainlinkFeedRegistry);
@@ -61,6 +68,8 @@ contract TKTChainFactory is
         if (msg.value < eventCreationFeeInEth) revert InvalidFee();
         TKTChainEvent e = new TKTChainEvent();
         emit EventCreated(address(e), msg.sender, block.timestamp);
+        ++totalEvents;
+        _mint(msg.sender, K / totalEvents);
         return address(e);
     }
 
@@ -80,6 +89,8 @@ contract TKTChainFactory is
         );
         TKTChainEvent e = new TKTChainEvent();
         emit EventCreated(address(e), msg.sender, block.timestamp);
+        ++totalEvents;
+        _mint(msg.sender, K / totalEvents);
         return address(e);
     }
 
