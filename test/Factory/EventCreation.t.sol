@@ -9,7 +9,13 @@ contract EventCreationTest is TKTChainFactoryTest {
 
         vm.expectEmit(false, true, true, false);
         emit EventCreated(address(0), address(this), block.timestamp);
-        factory.createEvent{value: amount}();
+        factory.createEvent{value: amount}(
+            "name",
+            "desc",
+            "uri",
+            0,
+            new TKTChainEvent.Ticket[](0)
+        );
 
         assertEq(address(factory).balance, amount);
         assertEq(factory.balanceOf(address(this)), factory.K());
@@ -18,7 +24,13 @@ contract EventCreationTest is TKTChainFactoryTest {
     function testCreateEventWithInvalidFee(uint256 amount) public {
         vm.assume(amount < INITIAL_FEE);
         vm.expectRevert(TKTChainFactory.InvalidFee.selector);
-        factory.createEvent{value: amount}();
+        factory.createEvent{value: amount}(
+            "name",
+            "desc",
+            "uri",
+            0,
+            new TKTChainEvent.Ticket[](0)
+        );
     }
 
     function testCreateEventWithToken() public {
@@ -36,7 +48,14 @@ contract EventCreationTest is TKTChainFactoryTest {
 
         vm.expectEmit(false, true, true, false);
         emit EventCreated(address(0), address(this), block.timestamp);
-        factory.createEvent(LINK);
+        factory.createEvent(
+            LINK,
+            "name",
+            "desc",
+            "uri",
+            0,
+            new TKTChainEvent.Ticket[](0)
+        );
 
         assertEq(token.balanceOf(address(factory)), tokenAmount);
         assertEq(factory.balanceOf(address(this)), factory.K());
@@ -58,13 +77,26 @@ contract EventCreationTest is TKTChainFactoryTest {
         token.approve(address(factory), amount);
 
         vm.expectRevert(bytes("SafeERC20: low-level call failed"));
-        factory.createEvent(LINK);
+        factory.createEvent(
+            LINK,
+            "name",
+            "desc",
+            "uri",
+            0,
+            new TKTChainEvent.Ticket[](0)
+        );
     }
 
     function testMintingDuringEventCreationWithEther(uint8 amount) public {
         vm.assume(amount < 30); /// @dev Just to make tests fast
         for (uint i = 1; i < amount; i++) {
-            factory.createEvent{value: INITIAL_FEE}();
+            factory.createEvent{value: INITIAL_FEE}(
+                "name",
+                "desc",
+                "uri",
+                0,
+                new TKTChainEvent.Ticket[](0)
+            );
             assertEq(
                 factory.balanceOf(address(this)),
                 factory.K() / factory.totalEvents()
@@ -89,7 +121,14 @@ contract EventCreationTest is TKTChainFactoryTest {
         token.approve(address(factory), tokenAmount * amount);
 
         for (uint i = 1; i < amount; i++) {
-            factory.createEvent(LINK);
+            factory.createEvent(
+                LINK,
+                "name",
+                "desc",
+                "uri",
+                0,
+                new TKTChainEvent.Ticket[](0)
+            );
             assertEq(
                 factory.balanceOf(address(this)),
                 factory.K() / factory.totalEvents()

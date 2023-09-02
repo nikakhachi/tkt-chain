@@ -64,9 +64,21 @@ contract TKTChainFactory is
     }
 
     /// @notice Function for creating the event contract and paying with ETH
-    function createEvent() external payable virtual returns (address) {
+    function createEvent(
+        string memory _name,
+        string memory _description,
+        string memory _uri,
+        uint256 _ticketSalesEndTimestamp,
+        TKTChainEvent.Ticket[] memory _tickets
+    ) external payable virtual returns (address) {
         if (msg.value < eventCreationFeeInEth) revert InvalidFee();
-        TKTChainEvent e = new TKTChainEvent();
+        TKTChainEvent e = new TKTChainEvent(
+            _name,
+            _description,
+            _uri,
+            _ticketSalesEndTimestamp,
+            _tickets
+        );
         emit EventCreated(address(e), msg.sender, block.timestamp);
         ++totalEvents;
         _mint(msg.sender, K / totalEvents);
@@ -74,7 +86,14 @@ contract TKTChainFactory is
     }
 
     /// @notice Function for creating the event contract and paying with ERC20 tokens
-    function createEvent(address _token) external virtual returns (address) {
+    function createEvent(
+        address _token,
+        string memory _name,
+        string memory _description,
+        string memory _uri,
+        uint256 _ticketSalesEndTimestamp,
+        TKTChainEvent.Ticket[] memory _tickets
+    ) external virtual returns (address) {
         if (!paymentTokens[_token]) revert InvalidToken();
         (, int tokenPriceInEth, , , ) = chainlinkFeedRegistry.latestRoundData(
             _token,
@@ -87,7 +106,13 @@ contract TKTChainFactory is
             (eventCreationFeeInEth * (10 ** token.decimals())) /
                 uint256(tokenPriceInEth)
         );
-        TKTChainEvent e = new TKTChainEvent();
+        TKTChainEvent e = new TKTChainEvent(
+            _name,
+            _description,
+            _uri,
+            _ticketSalesEndTimestamp,
+            _tickets
+        );
         emit EventCreated(address(e), msg.sender, block.timestamp);
         ++totalEvents;
         _mint(msg.sender, K / totalEvents);
