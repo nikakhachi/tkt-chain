@@ -4,6 +4,9 @@ pragma solidity ^0.8.19;
 import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin/token/ERC20/IERC20.sol";
+import "chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol";
 import "./TKTChainEvent.sol";
 import "./UC.sol";
 
@@ -14,6 +17,8 @@ contract TKTChainFactory is
     Ownable2StepUpgradeable,
     UUPSUpgradeable
 {
+    using SafeERC20 for IERC20;
+
     error InvalidFee();
 
     event EventCreated(
@@ -26,6 +31,10 @@ contract TKTChainFactory is
 
     mapping(address => bool) public paymentTokens;
 
+    FeedRegistryInterface public chainlinkFeedRegistry; /// @dev Used for getting the price of the token when paying with token
+    address public constant CHAINLINK_ETH_DENOMINATION_ =
+        0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE; /// @dev Used for price feed for ETH denomination
+
     /// @dev This is the recommendation from the OZ, uncomment it when deploying.
     /// @dev During the tests, it's better to disable it, because it makes the tests fail
     // /// @custom:oz-upgrades-unsafe-allow constructor
@@ -35,15 +44,35 @@ contract TKTChainFactory is
 
     /// @dev Upgradeable Contract Initializer
     /// @dev Can be called only once
-    function initialize(uint256 _eventCreationFee) public initializer {
+    function initialize(
+        uint256 _eventCreationFee,
+        address _chainlinkFeedRegistry
+    ) public initializer {
         __Ownable_init();
         __UUPSUpgradeable_init();
         eventCreationFee = _eventCreationFee;
+        chainlinkFeedRegistry = FeedRegistryInterface(_chainlinkFeedRegistry);
     }
 
-    /// @notice Function for creating the event contract
+    /// @notice Function for creating the event contract and paying with ETH
     function createEvent() external payable virtual returns (address) {
         if (msg.value < eventCreationFee) revert InvalidFee();
+        TKTChainEvent e = new TKTChainEvent();
+        emit EventCreated(address(e), msg.sender, block.timestamp);
+        return address(e);
+    }
+
+    /// @notice Function for creating the event contract and paying with ERC20 tokens
+    function createEvent(address _token) external virtual returns (address) {
+        (, int tokenPriceInEth, , , ) = chainlinkFeedRegistry.latestRoundData(
+            _token,
+            CHAINLINK_ETH_DENOMINATION_
+        );
+        IERC20(_token).safeTransferFrom(
+            msg.sender,
+            address(this),
+            eventCreationFee / uint256(tokenPriceInEth)
+        );
         TKTChainEvent e = new TKTChainEvent();
         emit EventCreated(address(e), msg.sender, block.timestamp);
         return address(e);
