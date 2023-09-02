@@ -4,21 +4,47 @@ pragma solidity ^0.8.13;
 import "./Main.t.sol";
 
 contract EventCreationTest is TKTChainFactoryTest {
-    function testCreateEvent(uint256 amount) public {
+    function testCreateEvent(
+        uint256 amount,
+        string memory name,
+        string memory desc,
+        string memory uri,
+        uint256 ticketSalesEndTimestamp,
+        uint8 ticketTypeCount
+    ) public {
         vm.assume(amount >= INITIAL_FEE && amount < address(this).balance);
+
+        TKTChainEvent.Ticket[] memory tickets = new TKTChainEvent.Ticket[](
+            ticketTypeCount
+        );
+        for (uint i; i < ticketTypeCount; i++) {
+            tickets[i] = TKTChainEvent.Ticket(i * 1e18, i * 100);
+        }
 
         vm.expectEmit(false, true, true, false);
         emit EventCreated(address(0), address(this), block.timestamp);
-        factory.createEvent{value: amount}(
-            "name",
-            "desc",
-            "uri",
-            0,
-            new TKTChainEvent.Ticket[](0)
+        address eventAddress = factory.createEvent{value: amount}(
+            name,
+            desc,
+            uri,
+            ticketSalesEndTimestamp,
+            tickets
         );
+
+        TKTChainEvent tktEvent = TKTChainEvent(payable(eventAddress));
 
         assertEq(address(factory).balance, amount);
         assertEq(factory.balanceOf(address(this)), factory.K());
+        assertEq(tktEvent.name(), name);
+        assertEq(tktEvent.description(), desc);
+        assertEq(tktEvent.uri(0), uri);
+        assertEq(tktEvent.ticketSalesEndTimestamp(), ticketSalesEndTimestamp);
+        assertEq(tktEvent.ticketTypeCount(), ticketTypeCount);
+
+        for (uint i; i < ticketTypeCount; i++) {
+            assertEq(tktEvent.ticketTypePrices(i), i * 1e18);
+            assertEq(tktEvent.ticketTypeMaxSupplies(i), i * 100);
+        }
     }
 
     function testCreateEventWithInvalidFee(uint256 amount) public {
@@ -33,7 +59,13 @@ contract EventCreationTest is TKTChainFactoryTest {
         );
     }
 
-    function testCreateEventWithToken() public {
+    function testCreateEventWithToken(
+        string memory name,
+        string memory desc,
+        string memory uri,
+        uint256 ticketSalesEndTimestamp,
+        uint8 ticketTypeCount
+    ) public {
         (, int tokenPriceInEth, , , ) = FeedRegistryInterface(
             CHAINLINK_FEED_REGISTRY
         ).latestRoundData(LINK, CHAINLINK_ETH_DENOMINATION_);
@@ -46,19 +78,38 @@ contract EventCreationTest is TKTChainFactoryTest {
         deal(LINK, address(this), tokenAmount);
         token.approve(address(factory), tokenAmount);
 
+        TKTChainEvent.Ticket[] memory tickets = new TKTChainEvent.Ticket[](
+            ticketTypeCount
+        );
+        for (uint i; i < ticketTypeCount; i++) {
+            tickets[i] = TKTChainEvent.Ticket(i * 1e18, i * 100);
+        }
+
         vm.expectEmit(false, true, true, false);
         emit EventCreated(address(0), address(this), block.timestamp);
-        factory.createEvent(
+        address eventAddress = factory.createEvent(
             LINK,
-            "name",
-            "desc",
-            "uri",
-            0,
-            new TKTChainEvent.Ticket[](0)
+            name,
+            desc,
+            uri,
+            ticketSalesEndTimestamp,
+            tickets
         );
+
+        TKTChainEvent tktEvent = TKTChainEvent(payable(eventAddress));
 
         assertEq(token.balanceOf(address(factory)), tokenAmount);
         assertEq(factory.balanceOf(address(this)), factory.K());
+        assertEq(tktEvent.name(), name);
+        assertEq(tktEvent.description(), desc);
+        assertEq(tktEvent.uri(0), uri);
+        assertEq(tktEvent.ticketSalesEndTimestamp(), ticketSalesEndTimestamp);
+        assertEq(tktEvent.ticketTypeCount(), ticketTypeCount);
+
+        for (uint i; i < ticketTypeCount; i++) {
+            assertEq(tktEvent.ticketTypePrices(i), i * 1e18);
+            assertEq(tktEvent.ticketTypeMaxSupplies(i), i * 100);
+        }
     }
 
     function testCreateEventWithTokenWithInvalidFee(uint amount) public {

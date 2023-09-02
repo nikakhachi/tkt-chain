@@ -2,7 +2,8 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import "../../src/TKTChainFactory.sol";
+import "../src/TKTChainFactory.sol";
+import "../src/TKTChainEvent.sol";
 import "chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol";
 import "openzeppelin/token/ERC20/ERC20.sol";
 
