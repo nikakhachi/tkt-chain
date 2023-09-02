@@ -20,6 +20,7 @@ contract TKTChainFactory is
     using SafeERC20 for IERC20;
 
     error InvalidFee();
+    error InvalidToken();
 
     event EventCreated(
         address indexed eventAddress,
@@ -64,6 +65,7 @@ contract TKTChainFactory is
 
     /// @notice Function for creating the event contract and paying with ERC20 tokens
     function createEvent(address _token) external virtual returns (address) {
+        if (!paymentTokens[_token]) revert InvalidToken();
         (, int tokenPriceInEth, , , ) = chainlinkFeedRegistry.latestRoundData(
             _token,
             CHAINLINK_ETH_DENOMINATION_
