@@ -23,10 +23,12 @@ contract TKTChainFactory is
 
     uint256 public eventCreationFee;
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
+    /// @dev This is the recommendation from the OZ, uncomment it when deploying.
+    /// @dev During the tests, it's better to disable it, because it makes the tests fail
+    // /// @custom:oz-upgrades-unsafe-allow constructor
+    // constructor() {
+    //     _disableInitializers();
+    // }
 
     /// @dev Upgradeable Contract Initializer
     /// @dev Can be called only once
