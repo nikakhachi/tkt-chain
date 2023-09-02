@@ -109,8 +109,22 @@ contract TKTChainFactory is
             delete paymentTokens[_tokens[i.unwrap()]];
     }
 
+    function withdrawToken(address _token) external onlyOwner {
+        IERC20 token = IERC20(_token);
+        token.safeTransfer(msg.sender, token.balanceOf(address(this)));
+    }
+
+    function withdrawEther() external onlyOwner {
+        (bool success, ) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
+        require(success);
+    }
+
     /// @dev Function for upgrading the contract
     function _authorizeUpgrade(
         address newImplementation
     ) internal override onlyOwner {}
+
+    receive() external payable {}
 }
