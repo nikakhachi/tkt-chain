@@ -5,10 +5,11 @@ import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradea
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin/token/ERC20/IERC20.sol";
+import "openzeppelin/token/ERC20/ERC20.sol";
 import "chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol";
 import "./TKTChainEvent.sol";
 import "./UC.sol";
+import "forge-std/console.sol";
 
 /// @title EventFactory Contract
 /// @author Nika Khachiashvili
@@ -17,7 +18,7 @@ contract TKTChainFactory is
     Ownable2StepUpgradeable,
     UUPSUpgradeable
 {
-    using SafeERC20 for IERC20;
+    using SafeERC20 for ERC20;
 
     error InvalidFee();
     error InvalidToken();
@@ -70,10 +71,12 @@ contract TKTChainFactory is
             _token,
             CHAINLINK_ETH_DENOMINATION_
         );
-        IERC20(_token).safeTransferFrom(
+        ERC20 token = ERC20(_token);
+        token.safeTransferFrom(
             msg.sender,
             address(this),
-            eventCreationFeeInEth / uint256(tokenPriceInEth)
+            (eventCreationFeeInEth * (10 ** token.decimals())) /
+                uint256(tokenPriceInEth)
         );
         TKTChainEvent e = new TKTChainEvent();
         emit EventCreated(address(e), msg.sender, block.timestamp);
@@ -112,7 +115,7 @@ contract TKTChainFactory is
     }
 
     function withdrawToken(address _token) external onlyOwner {
-        IERC20 token = IERC20(_token);
+        ERC20 token = ERC20(_token);
         token.safeTransfer(msg.sender, token.balanceOf(address(this)));
     }
 
