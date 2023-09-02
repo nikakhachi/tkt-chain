@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./TKTChainEvent.sol";
 
 /// @title EventFactory Contract
 /// @author Nika Khachiashvili
-contract TKTChainFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
+contract TKTChainFactory is
+    Initializable,
+    Ownable2StepUpgradeable,
+    UUPSUpgradeable
+{
     event EventCreated(
         address indexed eventAddress,
         address indexed owner,
