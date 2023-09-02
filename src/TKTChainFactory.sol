@@ -27,7 +27,7 @@ contract TKTChainFactory is
         uint256 indexed timestamp
     );
 
-    uint256 public eventCreationFee;
+    uint256 public eventCreationFeeInEth;
 
     mapping(address => bool) public paymentTokens;
 
@@ -45,18 +45,18 @@ contract TKTChainFactory is
     /// @dev Upgradeable Contract Initializer
     /// @dev Can be called only once
     function initialize(
-        uint256 _eventCreationFee,
+        uint256 _eventCreationFeeInEth,
         address _chainlinkFeedRegistry
     ) public initializer {
         __Ownable_init();
         __UUPSUpgradeable_init();
-        eventCreationFee = _eventCreationFee;
+        eventCreationFeeInEth = _eventCreationFeeInEth;
         chainlinkFeedRegistry = FeedRegistryInterface(_chainlinkFeedRegistry);
     }
 
     /// @notice Function for creating the event contract and paying with ETH
     function createEvent() external payable virtual returns (address) {
-        if (msg.value < eventCreationFee) revert InvalidFee();
+        if (msg.value < eventCreationFeeInEth) revert InvalidFee();
         TKTChainEvent e = new TKTChainEvent();
         emit EventCreated(address(e), msg.sender, block.timestamp);
         return address(e);
@@ -71,7 +71,7 @@ contract TKTChainFactory is
         IERC20(_token).safeTransferFrom(
             msg.sender,
             address(this),
-            eventCreationFee / uint256(tokenPriceInEth)
+            eventCreationFeeInEth / uint256(tokenPriceInEth)
         );
         TKTChainEvent e = new TKTChainEvent();
         emit EventCreated(address(e), msg.sender, block.timestamp);
@@ -79,8 +79,8 @@ contract TKTChainFactory is
     }
 
     /// @notice update the fee for creating the event
-    function updateFee(uint256 _newEventCreationFee) external onlyOwner {
-        eventCreationFee = _newEventCreationFee;
+    function updateFee(uint256 _newEventCreationFeeInEth) external onlyOwner {
+        eventCreationFeeInEth = _newEventCreationFeeInEth;
     }
 
     /// @notice add a token which can be used as a payment when creating an event
