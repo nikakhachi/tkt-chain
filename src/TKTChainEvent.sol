@@ -20,7 +20,7 @@ contract TKTChainEvent is ERC1155, Ownable, ERC1155Supply {
     string public name;
     string public description;
 
-    uint256 public ticketSalesEndTimestamp;
+    uint256 public ticketSalesEndsAt;
     uint256 public ticketTypeCount;
     mapping(uint256 => uint256) public ticketTypePrices;
     mapping(uint256 => uint256) public ticketTypeMaxSupplies;
@@ -29,7 +29,7 @@ contract TKTChainEvent is ERC1155, Ownable, ERC1155Supply {
         string memory _name,
         string memory _description,
         string memory _uri,
-        uint256 _ticketSalesEndTimestamp,
+        uint256 _ticketSalesEndsAt,
         Ticket[] memory _tickets
     ) ERC1155(_uri) {
         uint length = _tickets.length;
@@ -44,7 +44,7 @@ contract TKTChainEvent is ERC1155, Ownable, ERC1155Supply {
 
         name = _name;
         description = _description;
-        ticketSalesEndTimestamp = _ticketSalesEndTimestamp;
+        ticketSalesEndsAt = _ticketSalesEndsAt;
         ticketTypeCount = length;
     }
 
@@ -96,10 +96,10 @@ contract TKTChainEvent is ERC1155, Ownable, ERC1155Supply {
         description = _description;
     }
 
-    function editTicketSalesEndTimestamp(
-        uint256 _ticketSalesEndTimestamp
+    function editTicketSalesEndsAt(
+        uint256 _ticketSalesEndsAt
     ) public onlyOwner {
-        ticketSalesEndTimestamp = _ticketSalesEndTimestamp;
+        ticketSalesEndsAt = _ticketSalesEndsAt;
     }
 
     function editTicketTypeMaxSupply(

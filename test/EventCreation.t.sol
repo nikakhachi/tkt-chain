@@ -9,7 +9,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         string memory name,
         string memory desc,
         string memory uri,
-        uint256 ticketSalesEndTimestamp,
+        uint256 ticketSalesEndsAt,
         uint8 ticketTypeCount
     ) public {
         vm.assume(amount >= INITIAL_FEE && amount < address(this).balance);
@@ -27,7 +27,7 @@ contract EventCreationTest is TKTChainFactoryTest {
             name,
             desc,
             uri,
-            ticketSalesEndTimestamp,
+            ticketSalesEndsAt,
             tickets
         );
 
@@ -38,7 +38,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         assertEq(tktEvent.name(), name);
         assertEq(tktEvent.description(), desc);
         assertEq(tktEvent.uri(0), uri);
-        assertEq(tktEvent.ticketSalesEndTimestamp(), ticketSalesEndTimestamp);
+        assertEq(tktEvent.ticketSalesEndsAt(), ticketSalesEndsAt);
         assertEq(tktEvent.ticketTypeCount(), ticketTypeCount);
 
         for (uint i; i < ticketTypeCount; i++) {
@@ -63,7 +63,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         string memory name,
         string memory desc,
         string memory uri,
-        uint256 ticketSalesEndTimestamp,
+        uint256 ticketSalesEndsAt,
         uint8 ticketTypeCount
     ) public {
         (, int tokenPriceInEth, , , ) = FeedRegistryInterface(
@@ -92,7 +92,7 @@ contract EventCreationTest is TKTChainFactoryTest {
             name,
             desc,
             uri,
-            ticketSalesEndTimestamp,
+            ticketSalesEndsAt,
             tickets
         );
 
@@ -103,7 +103,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         assertEq(tktEvent.name(), name);
         assertEq(tktEvent.description(), desc);
         assertEq(tktEvent.uri(0), uri);
-        assertEq(tktEvent.ticketSalesEndTimestamp(), ticketSalesEndTimestamp);
+        assertEq(tktEvent.ticketSalesEndsAt(), ticketSalesEndsAt);
         assertEq(tktEvent.ticketTypeCount(), ticketTypeCount);
 
         for (uint i; i < ticketTypeCount; i++) {
