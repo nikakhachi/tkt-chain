@@ -10,6 +10,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         string memory desc,
         string memory uri,
         uint256 ticketSalesEndsAt,
+        uint256 eventStartsAt,
         uint8 ticketTypeCount
     ) public {
         vm.assume(amount >= INITIAL_FEE && amount < address(this).balance);
@@ -28,6 +29,7 @@ contract EventCreationTest is TKTChainFactoryTest {
             desc,
             uri,
             ticketSalesEndsAt,
+            eventStartsAt,
             tickets
         );
 
@@ -40,6 +42,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         assertEq(tktEvent.uri(0), uri);
         assertEq(tktEvent.ticketSalesEndsAt(), ticketSalesEndsAt);
         assertEq(tktEvent.ticketTypeCount(), ticketTypeCount);
+        assertEq(tktEvent.eventStartsAt(), eventStartsAt);
 
         for (uint i; i < ticketTypeCount; i++) {
             assertEq(tktEvent.ticketTypePrices(i), i * 1e18);
@@ -55,6 +58,7 @@ contract EventCreationTest is TKTChainFactoryTest {
             "desc",
             "uri",
             0,
+            0,
             new TKTChainEvent.Ticket[](0)
         );
     }
@@ -64,6 +68,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         string memory desc,
         string memory uri,
         uint256 ticketSalesEndsAt,
+        uint256 eventStartsAt,
         uint8 ticketTypeCount
     ) public {
         (, int tokenPriceInEth, , , ) = FeedRegistryInterface(
@@ -93,6 +98,7 @@ contract EventCreationTest is TKTChainFactoryTest {
             desc,
             uri,
             ticketSalesEndsAt,
+            eventStartsAt,
             tickets
         );
 
@@ -105,6 +111,7 @@ contract EventCreationTest is TKTChainFactoryTest {
         assertEq(tktEvent.uri(0), uri);
         assertEq(tktEvent.ticketSalesEndsAt(), ticketSalesEndsAt);
         assertEq(tktEvent.ticketTypeCount(), ticketTypeCount);
+        assertEq(tktEvent.eventStartsAt(), eventStartsAt);
 
         for (uint i; i < ticketTypeCount; i++) {
             assertEq(tktEvent.ticketTypePrices(i), i * 1e18);
@@ -134,6 +141,7 @@ contract EventCreationTest is TKTChainFactoryTest {
             "desc",
             "uri",
             0,
+            0,
             new TKTChainEvent.Ticket[](0)
         );
     }
@@ -145,6 +153,7 @@ contract EventCreationTest is TKTChainFactoryTest {
                 "name",
                 "desc",
                 "uri",
+                0,
                 0,
                 new TKTChainEvent.Ticket[](0)
             );
@@ -177,6 +186,7 @@ contract EventCreationTest is TKTChainFactoryTest {
                 "name",
                 "desc",
                 "uri",
+                0,
                 0,
                 new TKTChainEvent.Ticket[](0)
             );

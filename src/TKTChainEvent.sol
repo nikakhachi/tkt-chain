@@ -19,6 +19,7 @@ contract TKTChainEvent is ERC1155, Ownable, ERC1155Supply {
 
     string public name;
     string public description;
+    uint256 public eventStartsAt;
 
     uint256 public ticketSalesEndsAt;
     uint256 public ticketTypeCount;
@@ -30,6 +31,7 @@ contract TKTChainEvent is ERC1155, Ownable, ERC1155Supply {
         string memory _description,
         string memory _uri,
         uint256 _ticketSalesEndsAt,
+        uint256 _eventStartsAt,
         Ticket[] memory _tickets
     ) ERC1155(_uri) {
         uint length = _tickets.length;
@@ -46,6 +48,7 @@ contract TKTChainEvent is ERC1155, Ownable, ERC1155Supply {
         description = _description;
         ticketSalesEndsAt = _ticketSalesEndsAt;
         ticketTypeCount = length;
+        eventStartsAt = _eventStartsAt;
     }
 
     function buyTickets(
@@ -100,6 +103,10 @@ contract TKTChainEvent is ERC1155, Ownable, ERC1155Supply {
         uint256 _ticketSalesEndsAt
     ) public onlyOwner {
         ticketSalesEndsAt = _ticketSalesEndsAt;
+    }
+
+    function editEventStartsAt(uint256 _eventStartsAt) public onlyOwner {
+        eventStartsAt = _eventStartsAt;
     }
 
     function editTicketTypeMaxSupply(

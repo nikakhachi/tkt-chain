@@ -69,6 +69,7 @@ contract TKTChainFactory is
         string memory _description,
         string memory _uri,
         uint256 _ticketSalesEndsAt,
+        uint256 _eventStartsAt,
         TKTChainEvent.Ticket[] memory _tickets
     ) external payable virtual returns (address) {
         if (msg.value < eventCreationFeeInEth) revert InvalidFee();
@@ -77,6 +78,7 @@ contract TKTChainFactory is
             _description,
             _uri,
             _ticketSalesEndsAt,
+            _eventStartsAt,
             _tickets
         );
         emit EventCreated(address(e), msg.sender, block.timestamp);
@@ -92,6 +94,7 @@ contract TKTChainFactory is
         string memory _description,
         string memory _uri,
         uint256 _ticketSalesEndsAt,
+        uint256 _eventStartsAt,
         TKTChainEvent.Ticket[] memory _tickets
     ) external virtual returns (address) {
         if (!paymentTokens[_token]) revert InvalidToken();
@@ -111,6 +114,7 @@ contract TKTChainFactory is
             _description,
             _uri,
             _ticketSalesEndsAt,
+            _eventStartsAt,
             _tickets
         );
         emit EventCreated(address(e), msg.sender, block.timestamp);
